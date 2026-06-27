@@ -6,6 +6,7 @@ requires 'perl' => '5.026';
 requires 'Mojolicious' => '9.46';
 requires 'Mojolicious::Plugin::Fondation';
 requires 'Mojolicious::Sessions::Store';
+requires 'Bytes::Random::Secure';
 
 # Testing
 on test => sub {

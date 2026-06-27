@@ -5,6 +5,8 @@ package Mojolicious::Plugin::Fondation::SessionStore;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 use Mojolicious::Sessions::Store;
 use Mojolicious::Sessions::Store::Backend::File;
+use Bytes::Random::Secure;
+use Mojo::File;
 
 our $VERSION = '0.01';
 
@@ -27,6 +29,9 @@ sub register ($self, $app, $config) {
     # ── Resolve store_dir ──────────────────────────────────────────────
     my $store_dir = $config->{store_dir}
         // $app->home->child('data/sessions')->to_string;
+
+    # ── Auto-generate secrets if using insecure default ─────────────────
+    _ensure_secrets($self, $app);
 
     # ── Instantiate backend ────────────────────────────────────────────
     my $backend;
@@ -52,10 +57,37 @@ sub register ($self, $app, $config) {
     $app->sessions($store);
 
     $self->log->info(
-        sprintf("SessionStore: using backend '%s' at %s",
+        sprintf("Using backend '%s' at %s",
             $config->{backend}, $store_dir));
 
     return $self;
+}
+
+# ── Internal: auto-generate secrets if default (CVE-2024-58134) ─────────
+
+sub _ensure_secrets ($self, $app) {
+    # Only act if secrets are the default (moniker-derived — predictable)
+    my $secrets = $app->secrets;
+    return unless @$secrets == 1 && $secrets->[0] eq $app->moniker;
+
+    my $secret_file = $app->home->child('data/session_store_secret');
+
+    if (-f $secret_file) {
+        my $secret = $secret_file->slurp;
+        chomp $secret;
+        $app->secrets([$secret]) if length $secret >= 32;
+        return;
+    }
+
+    # Generate and persist a new secret
+    my $random = Bytes::Random::Secure->new;
+    my $secret = unpack('H*', $random->bytes(32));
+    $secret_file->spurt($secret);
+    $app->secrets([$secret]);
+
+    $self->log->warn(
+        "Auto-generated secret saved to $secret_file.\n"
+        . "  Set \$app->secrets(['your-secret-here']) explicitly in production.");
 }
 
 1;
