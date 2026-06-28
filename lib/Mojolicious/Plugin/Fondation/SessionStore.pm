@@ -56,7 +56,7 @@ sub register ($self, $app, $config) {
     );
     $app->sessions($store);
 
-    $self->log->info(
+    $self->log->debug(
         sprintf("Using backend '%s' at %s",
             $config->{backend}, $store_dir));
 
