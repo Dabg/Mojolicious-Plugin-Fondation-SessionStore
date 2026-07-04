@@ -82,6 +82,7 @@ sub _ensure_secrets ($self, $app) {
     # Generate and persist a new secret
     my $random = Bytes::Random::Secure->new;
     my $secret = unpack('H*', $random->bytes(32));
+    $secret_file->dirname->make_path;
     $secret_file->spurt($secret);
     $app->secrets([$secret]);
 
