@@ -44,6 +44,29 @@ The [Mojolicious::Controller](https://metacpan.org/pod/Mojolicious%3A%3AControll
 
 Mojolicious::Plugin::Fondation::SessionStore - Server-side session storage for Fondation
 
+# WHY SERVER-SIDE STORAGE?
+
+By default, Mojolicious stores session data directly in a signed cookie.
+The cookie _is_ the session — serialized, signed, but still readable by
+the client (base64-encoded, not encrypted). This plugin opts for server-side
+storage instead, for three key reasons:
+
+- Security
+
+    Only an opaque session ID is sent to the browser. The actual session data
+    (user ID, roles, permissions, etc.) never leaves the server.
+
+- Revocation
+
+    Sessions can be destroyed server-side at any time — useful for forced
+    logout, password resets, or banning users. With cookie-only sessions,
+    the cookie remains valid until it expires, regardless of server intent.
+
+- Size
+
+    Cookies are limited to roughly 4 KB. Server-side sessions have no such
+    constraint, allowing larger payloads when needed.
+
 # CONFIGURATION
 
 All keys are optional and can be overridden in `myapp.pl` or `myapp.conf`.
