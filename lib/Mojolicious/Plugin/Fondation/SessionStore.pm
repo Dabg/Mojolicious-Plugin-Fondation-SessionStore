@@ -13,6 +13,7 @@ our $VERSION = '0.01';
 sub fondation_meta {
     return {
         dependencies => [],
+        before       => [ 'Fondation::Auth' ],
         defaults     => {
             backend   => 'file',
             store_dir => undef,       # resolved at startup: $app->home->child('data/sessions')
