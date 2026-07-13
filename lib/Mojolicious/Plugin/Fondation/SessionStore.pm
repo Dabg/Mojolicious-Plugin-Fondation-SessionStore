@@ -8,7 +8,6 @@ use Mojolicious::Sessions::Store::Backend::File;
 use Bytes::Random::Secure;
 use Mojo::File;
 
-our $VERSION = '0.01';
 
 sub fondation_meta {
     return {
