@@ -1,5 +1,7 @@
 Revision history for Mojolicious-Plugin-Fondation-SessionStore
 
 {{$NEXT}}
+
+0.01      2026-07-14 17:21:34
     - Initial release
     - Fondation plugin wrapping Mojolicious::Sessions::Store
